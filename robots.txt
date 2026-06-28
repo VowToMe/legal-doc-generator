@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://vowtome.github.io/legal-doc-generator/sitemap.xml
