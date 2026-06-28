@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能法律文书生成器 - 在线生成起诉状/离婚协议/借条等法律文书</title>
+    <meta name="description" content="免费在线法律文书生成工具，自动生成起诉状、离婚协议书、借条、收条、租赁合同等常见法律文书模板，简单填写即可生成专业格式文档。">
+    <meta name="keywords" content="法律文书,起诉状,离婚协议,借条,合同模板,法律文书生成">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://VowToMe.github.io/legal-doc-generator/">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+            background: #f5f7fa; color: #1a1a2e; line-height: 1.7; min-height: 100vh;
+        }
+        a { color: #2563eb; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .container { max-width: 840px; margin: 0 auto; padding: 0 20px; }
+        
+        header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #1e3a5f 100%);
+            color: #fff; padding: 40px 0 36px; text-align: center;
+            box-shadow: 0 4px 20px rgba(30, 58, 95, 0.3);
+        }
+        header h1 { font-size: 2rem; font-weight: 700; letter-spacing: 1px; }
+        header h1 span { display: inline-block; background: rgba(255,255,255,0.15); padding: 2px 12px; border-radius: 6px; font-weight: 400; font-size: 1.1rem; margin-left: 6px; }
+        header p { margin-top: 10px; opacity: 0.85; font-size: 1rem; }
+        
+        .toolbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 12px 0; position: sticky; top: 0; z-index: 50; }
+        .toolbar .container { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .toolbar label { font-size: 0.88rem; color: #475569; font-weight: 500; white-space: nowrap; }
+        .toolbar select {
+            flex: 1; min-width: 200px; padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px;
+            font-size: 0.95rem; background: #fff; cursor: pointer;
+            appearance: auto;
+        }
+        .toolbar select:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
+        
+        .doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; padding: 24px 0; }
+        .doc-card {
+            background: #fff; border: 2px solid #e2e8f0; border-radius: 12px; padding: 18px 14px;
+            text-align: center; cursor: pointer; transition: all 0.2s;
+        }
+        .doc-card:hover { border-color: #93c5fd; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37,99,235,0.1); }
+        .doc-card.active { border-color: #2563eb; background: #eff6ff; box-shadow: 0 0 0 3px rgba(37,99,235,0.2); }
+        .doc-card .icon { font-size: 2rem; margin-bottom: 6px; }
+        .doc-card .name { font-size: 0.9rem; font-weight: 600; color: #1e293b; }
+        .doc-card .desc { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+        
+        .form-section {
+            background: #fff; border-radius: 16px; padding: 28px 32px; margin-bottom: 28px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.06); display: none;
+        }
+        .form-section.show { display: block; }
+        .form-section h2 { font-size: 1.25rem; color: #1e3a5f; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px; }
+        .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+        .form-row.full { grid-template-columns: 1fr; }
+        @media (max-width: 600px) {
+            .form-section .form-row { grid-template-columns: 1fr; }
+            .form-section .form-row.three { grid-template-columns: 1fr; }
+        }
+        .form-group { margin-bottom: 4px; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 4px; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%; padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px;
+            font-size: 0.9rem; transition: all 0.2s; background: #fff; font-family: inherit;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+        }
+        .form-group textarea { resize: vertical; min-height: 70px; }
+        
+        .btn-group { margin-top: 22px; display: flex; gap: 12px; flex-wrap: wrap; }
+        .btn {
+            padding: 10px 28px; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .btn-primary { background: #2563eb; color: #fff; }
+        .btn-primary:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,99,235,0.35); }
+        .btn-secondary { background: #f1f5f9; color: #334155; }
+        .btn-secondary:hover { background: #e2e8f0; }
+        .btn-success { background: #059669; color: #fff; }
+        .btn-success:hover { background: #047857; transform: translateY(-1px); }
+        
+        .output-section {
+            background: #fff; border-radius: 16px; padding: 28px 32px; margin-bottom: 28px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.06); display: none;
+        }
+        .output-section.show { display: block; }
+        .output-section h2 { font-size: 1.2rem; color: #1e3a5f; margin-bottom: 14px; }
+        .output-content {
+            background: #fafbfc; border: 1px solid #e2e8f0; border-radius: 10px;
+            padding: 24px 28px; white-space: pre-wrap; font-size: 0.92rem;
+            line-height: 1.9; min-height: 200px; max-height: 600px; overflow-y: auto;
+            font-family: "PingFang SC", "Microsoft YaHei", serif;
+        }
+        .output-footer { margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+        .output-footer .tip { font-size: 0.82rem; color: #64748b; }
+        
+        .support {
+            background: #fff; border-radius: 16px; padding: 32px; margin-bottom: 28px;
+            text-align: center; box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+        }
+        .support h3 { font-size: 1.1rem; color: #1e3a5f; margin-bottom: 6px; }
+        .support p { color: #64748b; font-size: 0.88rem; margin-bottom: 16px; }
+        .support .qr-code img { max-width: 200px; border-radius: 12px; }
+        .support .qr-label { margin-top: 8px; font-size: 0.85rem; color: #475569; }
+        .support .qr-label strong { color: #1e3a5f; }
+        
+        .stats { display: flex; justify-content: center; gap: 40px; padding: 20px 0 12px; flex-wrap: wrap; }
+        .stats .item { text-align: center; }
+        .stats .num { font-size: 1.5rem; font-weight: 700; color: #2563eb; }
+        .stats .label { font-size: 0.8rem; color: #64748b; }
+        
+        footer { text-align: center; padding: 24px 0; font-size: 0.82rem; color: #94a3b8; border-top: 1px solid #e2e8f0; margin-top: 12px; }
+        
+        .toast {
+            position: fixed; top: 20px; right: 20px; background: #1e293b; color: #fff;
+            padding: 12px 20px; border-radius: 10px; font-size: 0.88rem;
+            transform: translateX(120%); transition: transform 0.3s; z-index: 999;
+            max-width: 360px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+        .toast.show { transform: translateX(0); }
+        
+        .loading { display: none; text-align: center; padding: 12px; }
+        .loading.show { display: block; }
+        .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid #e2e8f0; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <h1>笼言法律 <span>文书生成器</span></h1>
+        <p>填写信息 • 一键生成 • 下载打印 — 常见法律文书模板随时用</p>
+    </div>
+</header>
+
+<div class="toolbar">
+    <div class="container">
+        <label for="docType">选择文书类型：</label>
+        <select id="docType" onchange="switchDoc(this.value)">
+            <option value="complaint">民事起诉状</option>
+            <option value="divorce">离婚协议书</option>
+            <option value="iou">借条</option>
+            <option value="due">欠条</option>
+            <option value="receipt">收条</option>
+            <option value="rental">房屋租赁合同</option>
+            <option value="power">授权委托书</option>
+            <option value="commitment">承诺书</option>
+            <option value="gift">赠与合同</option>
+            <option value="prenup">婚前财产协议</option>
+        </select>
+    </div>
+</div>
+
+<main class="container">
+    
+    <div class="doc-grid" id="docGrid">
+        <div class="doc-card active" data-type="complaint" onclick="switchDoc('complaint')">
+            <div class="icon">⚖️</div>
+            <div class="name">民事起诉状</div>
+            <div class="desc">诉讼纠纷</div>
+        </div>
+        <div class="doc-card" data-type="divorce" onclick="switchDoc('divorce')">
+            <div class="icon">💑</div>
+            <div class="name">离婚协议书</div>
+            <div class="desc">同意离婚</div>
+        </div>
+        <div class="doc-card" data-type="iou" onclick="switchDoc('iou')">
+            <div class="icon">📝</div>
+            <div class="name">借条</div>
+            <div class="desc">借款凭证</div>
+        </div>
+        <div class="doc-card" data-type="due" onclick="switchDoc('due')">
+            <div class="icon">📋</div>
+            <div class="name">欠条</div>
+            <div class="desc">欠款凭证</div>
+        </div>
+        <div class="doc-card" data-type="receipt" onclick="switchDoc('receipt')">
+            <div class="icon">✅</div>
+            <div class="name">收条</div>
+            <div class="desc">收款凭证</div>
+        </div>
+        <div class="doc-card" data-type="rental" onclick="switchDoc('rental')">
+            <div class="icon">🏠</div>
+            <div class="name">租赁合同</div>
+            <div class="desc">房屋租赁</div>
+        </div>
+        <div class="doc-card" data-type="power" onclick="switchDoc('power')">
+            <div class="icon">👤</div>
+            <div class="name">授权委托书</div>
+            <div class="desc">委托代理</div>
+        </div>
+        <div class="doc-card" data-type="commitment" onclick="switchDoc('commitment')">
+            <div class="icon">📘</div>
+            <div class="name">承诺书</div>
+            <div class="desc">书面承诺</div>
+        </div>
+    </div>
+
+    <div class="form-section show" id="form-complaint">
+        <h2>民事起诉状</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label>原告姓名</label>
+                <input type="text" id="cp-plaintiff" placeholder="张三" />
+            </div>
+            <div class="form-group">
+                <label>原告性别</label>
+                <select id="cp-pgender"><option>男</option><option>女</option></select>
+            </div>
+            <div class="form-group">
+                <label>原告出生年月</label>
+                <input type="text" id="cp-pbirth" placeholder="比如 1990年01月" />
+            </div>
+            <div class="form-group">
+                <label>原告民族</label>
+                <input type="text" id="cp-pnation" placeholder="汉族" />
+            </div>
+            <div class="form-group">
+                <label>原告住址</label>
+                <input type="text" id="cp-paddr" placeholder="省市区街道..." />
+            </div>
+            <div class="form-group">
+                <label>原告联系电话</label>
+                <input type="text" id="cp-pphone" placeholder="手机号" />
+            </div>
+        </div>
+        <div class="form-row" style="margin-top:12px;">
+            <div class="form-group">
+                <label>被告姓名</label>
+                <input type="text" id="cp-defendant" placeholder="李四" />
+            </div>
+            <div class="form-group">
+                <label>被告住址</label>
+                <input type="text" id="cp-daddr" placeholder="省市区街道..." />
+            </div>
+            <div class="form-group">
+                <label>被告联系电话</label>
+                <input type="text" id="cp-dphone" placeholder="手机号" />
+            </div>
+        </div>
+        <div class="form-row" style="margin-top:12px;">
+            <div class="form-group">
+                <label>诉讼请求</label>
+                <textarea id="cp-demand" rows="2" placeholder="例如：判令被告偿还借款人民币40000元；诉讼费由被告承担。"></textarea>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>事实与理由</label>
+                <textarea id="cp-fact" rows="4" placeholder="简述事实经过：何时何地、因何事、产生了什么纠纷……"></textarea>
+            </div>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="generate('complaint')">生成起诉状</button>
+            <button class="btn btn-secondary" onclick="clearForm('complaint')">清空</button>
+        </div>
+    </div>
+
+    <div class="form-section" id="form-divorce">
+        <h2>离婚协议书</h2>
+        <div class="form-row">
+            <div class="form-group"><label>男方姓名</label><input type="text" id="dv-man" placeholder="姓名" /></div>
+            <div class="form-group"><label>男方证件号</label><input type="text" id="dv-mid" placeholder="身份证号" /></div>
+            <div class="form-group"><label>女方姓名</label><input type="text" id="dv-woman" placeholder="姓名" /></div>
+            <div class="form-group"><label>女方证件号</label><input type="text" id="dv-wid" placeholder="身份证号" /></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>结婚日期</label><input type="text" id="dv-mdate" placeholder="例如 2020年01月" /></div>
+            <div class="form-group"><label>子女情况</label><input type="text" id="dv-child" placeholder="比如：婚生子XXX由男方抚养" /></div>
+            <div class="form-group full"><label>财产处理</label><input type="text" id="dv-property" placeholder="比如：双方共同财产已分割完毕无争议" /></div>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="generate('divorce')">生成协议书</button>
+            <button class="btn btn-secondary" onclick="clearForm('divorce')">清空</button>
+        </div>
+    </div>
+
+    <div class="form-section" id="form-iou">
+        <h2>借条</h2>
+        <div class="form-row">
+            <div class="form-group"><label>出借人</label><input type="text" id="io-lender" placeholder="放款人姓名" /></div>
+            <div class="form-group"><label>借款人</label><input type="text" id="io-borrower" placeholder="借款人姓名" /></div>
+            <div class="form-group"><label>借款金额（大写）</label><input type="text" id="io-amount" placeholder="例如 人民币一万元整" /></div>
+            <div class="form-group"><label>借款日期</label><input type="text" id="io-date" placeholder="2025年01月01日" /></div>
+            <div class="form-group"><label>还款日期</label><input type="text" id="io-return" placeholder="2025年12月31日" /></div>
+            <div class="form-group"><label>利率约定</label><input type="text" id="io-interest" placeholder="比如 年化利率12%" /></div>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="generate('iou')">生成借条</button>
+            <button class="btn btn-secondary" onclick="clearForm('iou')">清空</button>
+        </div>
+    </div>
+
+    <div class="form-section" id="form-due">
+        <h2>欠条</h2>
+        <div class="form-row">
+            <div class="form-group"><label>债权人</label><input type="text" id="du-creditor" placeholder="债权人姓名" /></div>
+            <div class="form-group"><label>欠款人</label><input type="text" id="du-debtor" placeholder="欠款人姓名" /></div>
+            <div class="form-group"><label>欠款金额（大写）</label><input type="text" id="du-amount" placeholder="人民币五万元整" /></div>
+            <div class="form-group"><label>欠款原因</label><input type="text" id="du-reason" placeholder="购买商品/提供服务..." /></div>
+            <div class="form-group"><label>欠款日期</label><input type="text" id="du-date" placeholder="2025年05月01日" /></div>
+            <div class="form-group"><label>承诺还款日期</label><input type="text" id="du-return" placeholder="2025年08月01日" /></div>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="generate('due')">生成欠条</button>
+            <button class="btn btn-secondary" onclick="clearForm('due')">清空</button>
+        </div>
+    </div>
+
+    <div class="form-section" id="form-receipt">
+        <h2>收条</h2>
+        <div class="form-row">
+            <div class="form-group"><label>收款人</label><input type="text" id="rc-receiver" placeholder="收到款项的人" /></div>
+            <div class="form-group"><label>付款人</label><input type="text" id="rc-payer" placeholder="付款人姓名" /></div>
+            <div class="form-group"><label>收款金额（大写）</label><input type="text" id="rc-amount" placeholder="人民币三万元整" /></div>
+            <div class="form-group"><label>收款用途</label><input type="text" id="rc-purpose" placeholder="购房首付/借款..." /></div>
+            <div class="form-group"><label>收款日期</label><input type="text" id="rc-date" placeholder="2025年06月01日" /></div>
+            <div class="form-group"><label>收款方式</label><input type="text" id="rc-method" placeholder="银行转账/现金" /></div>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="generate('receipt')">生成收条</button>
+            <button class="btn btn-secondary" onclick="clearForm('receipt')">清空</button>
+        </div>
+    </div>
+
+    <div class="form-section" id="form-rental">
+        <h2>房屋租赁合同</h2>
+        <div class="form-row">
+            <div class="form-group"><label>出租方</label><input type="text" id="rt-landlord" placeholder="房东姓名" /></div>
+            <div class="form-group"><label>承租方</label><input type="text" id="rt-tenant" placeholder="租客姓名" /></div>
+            <div class="form-group"><label>房屋地址</label><input type="text" id="rt-addr" placeholder="详细地址" /></div>
+            <div class="form-group"><label>面积</label><input type="text" id="rt-size" placeholder="例如 90㎡" /></div>
+            <div class="form-group"><label>租期</label><input type="text" id="rt-term" placeholder="2025.01.01 至 2025.12.31" /></div>
+            <div class="form-group"><label>月租</label><input type="text" id="rt-rent" placeholder="例如 3000元" /></div>
+            <div class="form-group"><label>押金</label><input type="text" id="rt-deposit" placeholder="例如 3000元" /></div>
+            <div class="form-group"><label>付款方式</label><input type="text" id="rt-pay" placeholder="季付/月付" /></div>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="generate('rental')">生成合同</button>
+            <button class="btn btn-secondary" onclick="clearForm('rental')">清空</button>
+        </div>
+    </div>
+
+    <div class="form-section" id="form-power">
+        <h2>授权委托书</h2>
+        <div class="form-row">
+            <div class="form-group"><label>委托人</label><input type="text" id="pw-principal" placeholder="委托人姓名" /></div>
+            <div class="form-group"><label>受委托人</label><input type="text" id="pw-agent" placeholder="受委托人姓名" /></div>
+            <div class="form-group"><label>委托事项</label><input type="text" id="pw-matter" placeholder="例如 办理不动产过户手续" /></div>
+            <div class="form-group"><label>委托期限</label><input type="text" id="pw-term" placeholder="自签署之日起三个月" /></div>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="generate('power')">生成委托书</button>
+            <button class="btn btn-secondary" onclick="clearForm('power')">清空</button>
+        </div>
+    </div>
+
+    <div class="form-section" id="form-commitment">
+        <h2>承诺书</h2>
+        <div class="form-row">
+            <div class="form-group"><label>承诺人</label><input type="text" id="cm-person" placeholder="姓名" /></div>
+            <div class="form-group"><label>承诺事项</label><input type="text" id="cm-subject" placeholder="例如 按时归还借款" /></div>
+            <div class="form-group"><label>承诺内容</label><textarea id="cm-content" rows="3" placeholder="具体承诺内容..."></textarea></div>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="generate('commitment')">生成承诺书</button>
+            <button class="btn btn-secondary" onclick="clearForm('commitment')">清空</button>
+        </div>
+    </div>
+
+    <div class="form-section" id="form-gift">
+        <h2>赠与合同</h2>
+        <div class="form-row">
+            <div class="form-group"><label>赠与人</label><input type="text" id="gf-giver" placeholder="赠与人姓名" /></div>
+            <div class="form-group"><label>受赠人</label><input type="text" id="gf-receiver" placeholder="受赠人姓名" /></div>
+            <div class="form-group"><label>赠与财产</label><input type="text" id="gf-property" placeholder="具体财产描述" /></div>
+            <div class="form-group"><label>赠与日期</label><input type="text" id="gf-date" placeholder="2025年07月01日" /></div>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="generate('gift')">生成合同</button>
+            <button class="btn btn-secondary" onclick="clearForm('gift')">清空</button>
+        </div>
+    </div>
+
+    <div class="form-section" id="form-prenup">
+        <h2>婚前财产协议</h2>
+        <div class="form-row">
+            <div class="form-group"><label>男方</label><input type="text" id="pn-man" placeholder="姓名" /></div>
+            <div class="form-group"><label>女方</label><input type="text" id="pn-woman" placeholder="姓名" /></div>
+            <div class="form-group"><label>男方财产说明</label><textarea id="pn-mprop" rows="2" placeholder="男方婚前财产概述"></textarea></div>
+            <div class="form-group"><label>女方财产说明</label><textarea id="pn-wprop" rows="2" placeholder="女方婚前财产概述"></textarea></div>
+            <div class="form-group full"><label>特别约定</label><textarea id="pn-special" rows="2" placeholder="其他特别约定"></textarea></div>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="generate('prenup')">生成协议</button>
+            <button class="btn btn-secondary" onclick="clearForm('prenup')">清空</button>
+        </div>
+    </div>
+
+    <div class="output-section" id="outputSection">
+        <h2>生成结果</h2>
+        <div class="loading" id="loadingIndicator"><span class="spinner"></span> 正在生成...</div>
+        <div class="output-content" id="outputContent"></div>
+        <div class="output-footer">
+            <button class="btn btn-success" onclick="copyOutput()">复制文本</button>
+            <button class="btn btn-secondary" onclick="printOutput()">打印</button>
+            <span class="tip">• 请核对信息后使用 • 重大事项建议咨询律师</span>
+        </div>
+    </div>
+
+    <div class="support">
+        <h3>支持作者</h3>
+        <p>如果这个工具对你有帮助，欢迎支持作者一杯咖啡</p>
+        <div class="qr-code" id="qrContainer">
+            <img src="" id="qrCodeImg" alt="微信收款码" style="display:none;" />
+        </div>
+        <div class="qr-label">微信扫码支持，<strong>感谢你的支持</strong></div>
+    </div>
+
+    <div class="stats">
+        <div class="item"><div class="num">10</div><div class="label">文书类型</div></div>
+        <div class="item"><div class="num">免费</div><div class="label">在线使用</div></div>
+        <div class="item"><div class="num">即写</div><div class="label">即刻生成</div></div>
+    </div>
+</main>
+
+<footer>
+    <div class="container">
+        <p>笼言法律文书生成器 &copy; 2026 &mdash; 本工具仅提供模板参考，不构成法律意见。重大法律事务请咨询执业律师。</p>
+        <p style="margin-top:6px;"><a href="https://github.com/VowToMe/legal-doc-generator" target="_blank" rel="noopener">GitHub 源码</a></p>
+    </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function switchDoc(type) {
+    document.querySelectorAll('.form-section').forEach(el => el.classList.remove('show'));
+    document.querySelectorAll('.doc-card').forEach(el => el.classList.remove('active'));
+    const form = document.getElementById('form-' + type);
+    const card = document.querySelector('.doc-card[data-type="' + type + '"]');
+    if (form) form.classList.add('show');
+    if (card) card.classList.add('active');
+    document.getElementById('docType').value = type;
+    document.getElementById('outputSection').classList.remove('show');
+}
+
+function generate(type) {
+    const output = document.getElementById('outputContent');
+    const section = document.getElementById('outputSection');
+    const loading = document.getElementById('loadingIndicator');
+    loading.classList.add('show');
+    section.classList.remove('show');
+    setTimeout(() => {
+        let text = '';
+        switch(type) {
+            case 'complaint': text = genComplaint(); break;
+            case 'divorce':   text = genDivorce(); break;
+            case 'iou':       text = genIou(); break;
+            case 'due':       text = genDue(); break;
+            case 'receipt':   text = genReceipt(); break;
+            case 'rental':    text = genRental(); break;
+            case 'power':     text = genPower(); break;
+            case 'commitment':text = genCommitment(); break;
+            case 'gift':      text = genGift(); break;
+            case 'prenup':    text = genPrenup(); break;
+        }
+        output.textContent = text;
+        loading.classList.remove('show');
+        section.classList.add('show');
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+}
+
+function g(id, fb) { const v = document.getElementById(id)?.value?.trim(); return v || fb || '——'; }
+
+function genComplaint() {
+    return '民事起诉状\n\n原告：' + g('cp-plaintiff') + '，' + g('cp-pgender') + '，' + g('cp-pbirth') + '生，' + g('cp-pnation') + '，住' + g('cp-paddr') + '，联系电话：' + g('cp-pphone') + '。\n\n被告：' + g('cp-defendant') + '，住' + g('cp-daddr') + '，联系电话：' + g('cp-dphone') + '。\n\n诉讼请求：\n' + g('cp-demand') + '\n\n事实与理由：\n' + g('cp-fact') + '\n\n此致\n×××××人民法院\n\n原告（签章）：' + g('cp-plaintiff') + '\n' + new Date().getFullYear() + '年' + (new Date().getMonth()+1) + '月' + new Date().getDate() + '日';
+}
+function genDivorce() {
+    return '离婚协议书\n\n男方：' + g('dv-man') + '，身份证号：' + g('dv-mid') + '\n女方：' + g('dv-woman') + '，身份证号：' + g('dv-wid') + '\n\n双方于' + g('dv-mdate') + '登记结婚，现因感情不和自愿离婚，达成协议如下：\n\n一、男女双方自愿离婚。\n\n二、子女抚养：' + g('dv-child') + '\n\n三、财产处理：' + g('dv-property') + '\n\n四、本协议一式三份，双方各执一份，登记机关存档一份。\n\n男方（签字）：' + g('dv-man') + '    女方（签字）：' + g('dv-woman') + '\n' + new Date().getFullYear() + '年' + (new Date().getMonth()+1) + '月' + new Date().getDate() + '日';
+}
+function genIou() {
+    return '借条\n\n今借到出借人' + g('io-lender') + '人民币' + g('io-amount') + '。\n\n借款日期：' + g('io-date') + '\n还款日期：' + g('io-return') + '\n利率约定：' + g('io-interest') + '\n\n借款人承诺按期归还，逾期未还愿承担一切法律责任。\n\n借款人（签章）：' + g('io-borrower') + '\n' + g('io-date');
+}
+function genDue() {
+    return '欠条\n\n欠款人' + g('du-debtor') + '欠债权人' + g('du-creditor') + '人民币' + g('du-amount') + '。\n\n欠款原因：' + g('du-reason') + '\n欠款日期：' + g('du-date') + '\n承诺还款日期：' + g('du-return') + '\n\n欠款人（签章）：' + g('du-debtor') + '\n' + g('du-date');
+}
+function genReceipt() {
+    return '收条\n\n今收到' + g('rc-payer') + '人民币' + g('rc-amount') + '。\n\n收款用途：' + g('rc-purpose') + '\n收款方式：' + g('rc-method') + '\n\n此据。\n\n收款人（签章）：' + g('rc-receiver') + '\n' + g('rc-date');
+}
+function genRental() {
+    return '房屋租赁合同\n\n出租方（甲方）：' + g('rt-landlord') + '\n承租方（乙方）：' + g('rt-tenant') + '\n\n一、甲方将' + g('rt-addr') + '（' + g('rt-size') + '）出租给乙方。\n\n二、租期：' + g('rt-term') + '。\n\n三、租金：每月' + g('rt-rent') + '，' + g('rt-pay') + '。\n\n四、押金：' + g('rt-deposit') + '。\n\n五、乙方不得改变房屋结构，期满原状返还。\n\n六、本合同一式两份，自签署之日起生效。\n\n甲方：' + g('rt-landlord') + '    乙方：' + g('rt-tenant') + '\n' + new Date().getFullYear() + '年' + (new Date().getMonth()+1) + '月' + new Date().getDate() + '日';
+}
+function genPower() {
+    return '授权委托书\n\n委托人：' + g('pw-principal') + '\n受委托人：' + g('pw-agent') + '\n\n委托事项：' + g('pw-matter') + '\n\n委托期限：' + g('pw-term') + '\n\n受托人在授权范围内所为的法律行为，委托人均予以承认。\n\n委托人（签章）：' + g('pw-principal') + '    受委托人（签字）：' + g('pw-agent') + '\n' + new Date().getFullYear() + '年' + (new Date().getMonth()+1) + '月' + new Date().getDate() + '日';
+}
+function genCommitment() {
+    return '承诺书\n\n承诺人：' + g('cm-person') + '\n\n就' + g('cm-subject') + '事宜，承诺如下：\n' + g('cm-content') + '\n\n以上为本人真实意思表示。\n\n承诺人（签章）：' + g('cm-person') + '\n' + new Date().getFullYear() + '年' + (new Date().getMonth()+1) + '月' + new Date().getDate() + '日';
+}
+function genGift() {
+    return '赠与合同\n\n赠与人：' + g('gf-giver') + '\n受赠人：' + g('gf-receiver') + '\n\n甲方自愿将' + g('gf-property') + '无偿赠与乙方，乙方同意接受。\n\n赠与日期：' + g('gf-date') + '\n\n本合同自双方签字之日起生效。\n\n甲方：' + g('gf-giver') + '    乙方：' + g('gf-receiver') + '\n' + new Date().getFullYear() + '年' + (new Date().getMonth()+1) + '月' + new Date().getDate() + '日';
+}
+function genPrenup() {
+    return '婚前财产协议\n\n男方：' + g('pn-man') + '\n女方：' + g('pn-woman') + '\n\n一、男方婚前财产：' + g('pn-mprop') + '\n\n二、女方婚前财产：' + g('pn-wprop') + '\n\n三、以上财产均为各自个人财产，不因婚姻关系转变为共同财产。\n\n' + (g('pn-special', '') ? '四、特别约定：' + g('pn-special') + '\n\n' : '') + '本协议一式两份，自签署之日起生效。\n\n男方：' + g('pn-man') + '    女方：' + g('pn-woman') + '\n' + new Date().getFullYear() + '年' + (new Date().getMonth()+1) + '月' + new Date().getDate() + '日';
+}
+
+function clearForm(prefix) {
+    document.querySelectorAll('#form-' + prefix + ' input, #form-' + prefix + ' textarea').forEach(el => el.value = '');
+    document.getElementById('outputSection').classList.remove('show');
+}
+
+function copyOutput() {
+    const text = document.getElementById('outputContent').textContent;
+    navigator.clipboard.writeText(text).then(() => showToast('已复制')).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+        showToast('已复制');
+    });
+}
+
+function printOutput() {
+    const content = document.getElementById('outputContent').textContent;
+    const win = window.open('', '_blank');
+    win.document.write('<html><head><meta charset="utf-8"><title>打印</title><style>body{font-family:serif;padding:40px;white-space:pre-wrap;line-height:1.8;font-size:14pt;}</style></head><body>' + content.replace(/\n/g, '<br>') + '</body></html>');
+    win.document.close();
+    setTimeout(() => win.print(), 300);
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+document.addEventListener('DOMContentLoaded', () => switchDoc('complaint'));
+</script>
+
+</body>
+</html>
